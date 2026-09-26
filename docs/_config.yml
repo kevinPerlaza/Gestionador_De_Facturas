@@ -1,0 +1,10 @@
+theme: jekyll-theme-minimal
+title: Sistema de Gestión de Facturas
+description: Administra tus facturas de forma profesional con filtros avanzados y exportación
+show_downloads: true
+plugins:
+  - jekyll-mentions
+  - jekyll-redirect-from
+  - jekyll-sitemap
+  - jekyll-avatar
+  - jekyll-feed

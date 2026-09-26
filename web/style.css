@@ -1,0 +1,773 @@
+/* ============================================================================
+   SISTEMA DE FACTURAS - ESTILOS CSS v1.3
+   ============================================================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Variables */
+:root {
+    --primary-color: #1B5E4F;
+    --secondary-color: #2A7A68;
+    --accent-color: #FF9D3C;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+    --error-color: #F44336;
+    --light-gray: #F5F5F5;
+    --gray: #E0E0E0;
+    --dark-gray: #757575;
+    --text-color: #333;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Body y General */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1B5E4F 0%, #2A7A68 100%);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================================================
+   HEADER
+   ============================================================================ */
+
+.header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.logo {
+    height: 80px;
+    width: auto;
+    filter: drop-shadow(0 2px 4px rgba(255, 157, 60, 0.3));
+}
+
+.header-text h1 {
+    font-size: 2.2em;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: white;
+}
+
+.header-text .subtitle {
+    font-size: 1em;
+    opacity: 0.95;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.header-info {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+.status {
+    background: var(--success-color);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9em;
+}
+
+/* ============================================================================
+   MAIN CONTENT
+   ============================================================================ */
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 30px;
+    min-height: calc(100vh - 300px);
+}
+
+@media (max-width: 1024px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Paneles */
+.panel {
+    background: white;
+    border: 1px solid var(--gray);
+    border-radius: var(--border-radius);
+    padding: 25px;
+    box-shadow: var(--box-shadow);
+}
+
+.panel-header {
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--light-gray);
+    padding-bottom: 20px;
+}
+
+.panel-header h2 {
+    font-size: 1.8em;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.panel-description {
+    color: var(--dark-gray);
+    font-size: 0.95em;
+}
+
+/* ============================================================================
+   FORMULARIO - PANEL IZQUIERDO
+   ============================================================================ */
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--primary-color);
+    font-size: 0.95em;
+}
+
+.form-group input,
+.form-group select {
+    padding: 12px 15px;
+    border: 2px solid var(--gray);
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: linear-gradient(to right, #f5f9ff, white);
+}
+
+.form-group small {
+    color: var(--dark-gray);
+    font-size: 0.85em;
+}
+
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.currency-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--accent-color);
+    font-weight: bold;
+    font-size: 1.2em;
+    pointer-events: none;
+}
+
+.input-with-icon input {
+    padding-left: 40px !important;
+    width: 100%;
+}
+
+.info-icon {
+    position: absolute;
+    left: 15px;
+    font-size: 1em;
+    pointer-events: none;
+}
+
+.select-with-add {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.select-with-add select {
+    width: 100%;
+}
+
+.select-with-add input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid var(--gray);
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    transition: var(--transition);
+    font-family: inherit;
+}
+
+.select-with-add input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: linear-gradient(to right, #f5f9ff, white);
+}
+
+/* Form Actions */
+.form-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.form-message {
+    padding: 15px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-weight: 600;
+    display: none;
+}
+
+.form-message.success {
+    background: #E8F5E9;
+    color: var(--success-color);
+    display: block;
+}
+
+.form-message.error {
+    background: #FFEBEE;
+    color: var(--error-color);
+    display: block;
+}
+
+/* Summary Card */
+.summary-card {
+    background: linear-gradient(135deg, var(--light-gray) 0%, white 100%);
+    border: 2px solid var(--accent-color);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin-top: 25px;
+}
+
+.summary-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.summary-item .label {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.summary-item .value {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* ============================================================================
+   FILTROS - PANEL DERECHO
+   ============================================================================ */
+
+.filters-section {
+    background: var(--light-gray);
+    padding: 20px;
+    border-radius: var(--border-radius);
+    margin-bottom: 25px;
+}
+
+.filter-group {
+    margin-bottom: 18px;
+}
+
+.filter-group h4 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 0.95em;
+    font-weight: 600;
+}
+
+.filter-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid white;
+    border-radius: 6px;
+    font-size: 0.95em;
+    transition: var(--transition);
+}
+
+.filter-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+}
+
+.filter-range,
+.filter-date {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.range-separator {
+    text-align: center;
+    color: var(--dark-gray);
+    font-weight: 600;
+}
+
+.filter-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-checkboxes label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.filter-checkboxes label:hover {
+    background: white;
+}
+
+.filter-checkboxes input[type="checkbox"] {
+    cursor: pointer;
+}
+
+/* Filter Actions */
+.filter-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* ============================================================================
+   RESULTADOS
+   ============================================================================ */
+
+.results-section {
+    margin-bottom: 25px;
+}
+
+.results-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.results-container {
+    background: white;
+    border: 1px solid var(--gray);
+    border-radius: var(--border-radius);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.invoice-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--gray);
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 15px;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.invoice-item:hover {
+    background: var(--light-gray);
+}
+
+.invoice-item:last-child {
+    border-bottom: none;
+}
+
+.invoice-id {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    min-width: 80px;
+    text-align: center;
+}
+
+.invoice-info {
+    display: grid;
+    gap: 5px;
+}
+
+.invoice-client {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.invoice-details {
+    font-size: 0.9em;
+    color: var(--dark-gray);
+}
+
+.invoice-monto {
+    font-size: 1.2em;
+    font-weight: 700;
+    color: var(--success-color);
+    text-align: right;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.status-pagada {
+    background: #E8F5E9;
+    color: var(--success-color);
+}
+
+.status-pendiente {
+    background: #FFF3E0;
+    color: #F57C00;
+}
+
+.status-vencida {
+    background: #FFEBEE;
+    color: var(--error-color);
+}
+
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--dark-gray);
+}
+
+/* ============================================================================
+   BOTONES
+   ============================================================================ */
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-color), #FF8800);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 157, 60, 0.4);
+}
+
+.btn-secondary {
+    background: var(--gray);
+    color: var(--text-color);
+}
+
+.btn-secondary:hover {
+    background: #D0D0D0;
+    transform: translateY(-2px);
+}
+
+.btn-small {
+    padding: 8px 15px;
+    font-size: 0.9em;
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ============================================================================
+   EXPORTACION
+   ============================================================================ */
+
+.export-section {
+    background: var(--light-gray);
+    padding: 20px;
+    border-radius: var(--border-radius);
+}
+
+.export-section h4 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.export-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* ============================================================================
+   FOOTER
+   ============================================================================ */
+
+.footer {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 20px 30px;
+    text-align: center;
+    border-top: 3px solid var(--accent-color);
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-content a {
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.footer-content a:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+
+    .header-content {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .logo-section {
+        flex-direction: column;
+    }
+
+    .logo {
+        height: 60px;
+    }
+
+    .header-text h1 {
+        font-size: 1.5em;
+    }
+
+    .main-content {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .panel {
+        padding: 15px;
+    }
+
+    .form-actions,
+    .filter-actions,
+    .export-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .footer-content {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================================
+   ANIMACIONES
+   ============================================================================ */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.invoice-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Scrollbar Personalizado */
+.results-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.results-container::-webkit-scrollbar-track {
+    background: var(--light-gray);
+    border-radius: 4px;
+}
+
+.results-container::-webkit-scrollbar-thumb {
+    background: var(--accent-color);
+    border-radius: 4px;
+}
+
+.results-container::-webkit-scrollbar-thumb:hover {
+    background: #FF8800;
+}
+
+/* ============================================================================
+   NUEVOS ESTILOS v1.3 - CLIENTE Y TIEMPO TRANSCURRIDO
+   ============================================================================ */
+
+/* Datos adicionales del cliente */
+.invoice-client-details {
+    font-size: 0.85em;
+    color: var(--dark-gray);
+    margin-top: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* Indicador de tiempo transcurrido */
+.invoice-time-status {
+    margin-top: 8px;
+}
+
+.time-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.time-status-green {
+    background: linear-gradient(135deg, #C8E6C9, #A5D6A7);
+    color: #1B5E20;
+    border: 1px solid #66BB6A;
+}
+
+.time-status-orange {
+    background: linear-gradient(135deg, #FFE0B2, #FFCC80);
+    color: #E65100;
+    border: 1px solid #FFA726;
+}
+
+.time-status-red {
+    background: linear-gradient(135deg, #FFCDD2, #EF9A9A);
+    color: #B71C1C;
+    border: 1px solid #EF5350;
+}
+
+/* Filtro de tiempo */
+.filter-time-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-time-status label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 4px;
+    transition: var(--transition);
+    background: white;
+    font-size: 0.95em;
+}
+
+.filter-time-status label:hover {
+    background: rgba(27, 94, 79, 0.1);
+}
+
+.filter-time-status input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+

@@ -1,0 +1,35 @@
+name: Pruebas Python
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9, 3.10, 3.11, 3.12]
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Configurar Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Instalar dependencias
+      run: |
+        python -m pip install --upgrade pip
+        pip install openpyxl
+    
+    - name: Ejecutar pruebas
+      run: |
+        python test_invoices_db.py
+    
+    - name: Ejecutar ejemplo rápido
+      run: |
+        python EXCEL_RAPIDO.py
