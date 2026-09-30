@@ -127,7 +127,6 @@ function handleAddInvoice(e) {
 
     const cliente = document.getElementById('invoiceClient').value;
     const monto = parseFloat(document.getElementById('invoiceMonto').value);
-    const impuestos = parseFloat(document.getElementById('invoiceTaxes').value) || 0;
 
     // Validaciones básicas
     if (!cliente || !monto || !proyecto) {
@@ -140,7 +139,11 @@ function handleAddInvoice(e) {
         return;
     }
 
-    // Generar o usar ID personalizado
+    // Calcular impuestos correctamente (19%)
+    const impuestos = monto * 0.19;
+    const total = monto + impuestos;
+
+    // Generar o usar ID personalizado (pero no ambos)
     let id = document.getElementById('invoiceCustomId').value.trim();
     if (!id) {
         id = generateNextInvoiceId();
@@ -158,7 +161,7 @@ function handleAddInvoice(e) {
         monto: monto,
         proyecto: proyecto,
         impuestos: impuestos,
-        total: monto + impuestos,
+        total: total,
         estado: document.getElementById('invoiceStatus').value || 'pendiente'
     };
 
@@ -172,6 +175,8 @@ function handleAddInvoice(e) {
     // Limpiar formulario
     document.getElementById('invoiceForm').reset();
     document.getElementById('invoiceProjectOther').style.display = 'none';
+    document.getElementById('invoiceTaxes').value = '0.00';
+    document.getElementById('invoiceTotal').value = '0.00';
     
     // Actualizar UI
     updateUI();
@@ -294,10 +299,13 @@ function renderResults() {
         return;
     }
 
-    container.innerHTML = state.filteredInvoices.map(invoice => {
+    container.innerHTML = state.filteredInvoices.map((invoice, index) => {
         const daysAgo = calculateDaysSinceService(invoice.fecha);
         const timeStatusColor = getTimeStatusColor(daysAgo);
         const timeStatusEmoji = getTimeStatusEmoji(timeStatusColor);
+        
+        // Encontrar el índice real en state.invoices
+        const realIndex = state.invoices.findIndex(inv => inv.id === invoice.id);
         
         return `
         <div class="invoice-item">
@@ -317,6 +325,7 @@ function renderResults() {
                 </div>
             </div>
             <div class="invoice-monto">$${invoice.monto.toFixed(2)}</div>
+            <button class="btn-delete" onclick="deleteInvoice(${realIndex})" title="Eliminar factura">🗑️</button>
         </div>
     `;
     }).join('');
@@ -665,6 +674,24 @@ function formatDateFromInput(dateString) {
 // ============================================================================
 // NUEVAS FUNCIONES v1.3 - TIEMPO TRANSCURRIDO Y DATOS DEL CLIENTE
 // ============================================================================
+
+function deleteInvoice(index) {
+    if (index < 0 || index >= state.invoices.length) {
+        showMessage('Error: No se encontró la factura', 'error');
+        return;
+    }
+    
+    const invoice = state.invoices[index];
+    
+    // Confirmar eliminación
+    if (confirm(`¿Estás seguro de que deseas eliminar la factura ${invoice.id}?`)) {
+        state.invoices.splice(index, 1);
+        saveInvoicesToStorage();
+        showMessage(`Factura ${invoice.id} eliminada exitosamente`, 'success');
+        updateUI();
+        applyFilters();
+    }
+}
 
 function calculateDaysSinceService(dateString) {
     // Convertir fecha DD/MM/YYYY a Date
