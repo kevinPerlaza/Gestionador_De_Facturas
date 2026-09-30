@@ -1,13 +1,48 @@
 // ============================================================================
-// SISTEMA DE FACTURAS - APLICACION WEB v1.4
+// SISTEMA DE FACTURAS - APLICACION WEB v1.5
 // ============================================================================
-// Cambios v1.4:
-// - Menú de navegación entre Entrada y Búsqueda
-// - ID personalizado opcional
-// - Campos de RUT y Correo del cliente
-// - Corrección en cálculo de impuestos y total
-// - Mejora de diseño y UX
+// Cambios v1.5:
+// - Integración con Firebase para sincronización multi-dispositivo
+// - Autenticación anónima
+// - Datos sincronizados en tiempo real
 // ============================================================================
+
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyCW8FaGMLkh07LSLzwNSjec2lbnlrcd-zc",
+    authDomain: "gestionador-facturas.firebaseapp.com",
+    databaseURL: "https://gestionador-facturas-default-rtdb.firebaseio.com",
+    projectId: "gestionador-facturas",
+    storageBucket: "gestionador-facturas.firebasestorage.app",
+    messagingSenderId: "988429203216",
+    appId: "1:988429203216:web:27015068dd686eac8a1795"
+};
+
+// Initialize Firebase
+let db, auth, currentUserId;
+
+try {
+    const app = firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+    auth = firebase.auth();
+    
+    // Autenticación anónima
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUserId = user.uid;
+            loadInvoicesFromFirebase();
+        } else {
+            auth.signInAnonymously().catch((error) => {
+                console.error('Error de autenticación:', error);
+                // Fallback a localStorage si Firebase falla
+                loadInvoicesFromStorage();
+            });
+        }
+    });
+} catch (error) {
+    console.error('Error inicializando Firebase:', error);
+    // Fallback a localStorage
+}
 
 // Estado Global
 const state = {
@@ -24,8 +59,8 @@ const state = {
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     setupTabNavigation();
-    loadInvoicesFromStorage();
-    updateUI();
+    // No cargar inmediatamente - esperar a que Firebase se autentique
+    // La carga ocurrirá en auth.onAuthStateChanged
     setupProjectDropdown();
 });
 
@@ -167,7 +202,7 @@ function handleAddInvoice(e) {
 
     // Agregar factura
     state.invoices.push(invoiceData);
-    saveInvoicesToStorage();
+    saveInvoicesToFirebase();
     
     // Mensaje de éxito
     showMessage(`Factura ${id} agregada exitosamente`, 'success');
@@ -374,7 +409,7 @@ function updateUI() {
 }
 
 // ============================================================================
-// ALMACENAMIENTO LOCAL
+// ALMACENAMIENTO LOCAL Y FIREBASE
 // ============================================================================
 
 function saveInvoicesToStorage() {
@@ -385,15 +420,67 @@ function saveInvoicesToStorage() {
     }
 }
 
+function saveInvoicesToFirebase() {
+    if (!db || !currentUserId) {
+        saveInvoicesToStorage();
+        return;
+    }
+    
+    try {
+        db.ref(`invoices/${currentUserId}`).set(state.invoices).catch((error) => {
+            console.error('Error guardando en Firebase:', error);
+            // Fallback a localStorage
+            saveInvoicesToStorage();
+        });
+    } catch (e) {
+        console.error('Error al guardar en Firebase:', e);
+        saveInvoicesToStorage();
+    }
+}
+
 function loadInvoicesFromStorage() {
     try {
         const stored = localStorage.getItem('invoices');
         if (stored) {
             state.invoices = JSON.parse(stored);
             state.filteredInvoices = [...state.invoices];
+            updateUI();
+            applyFilters();
         }
     } catch (e) {
         console.error('Error al cargar desde localStorage:', e);
+    }
+}
+
+function loadInvoicesFromFirebase() {
+    if (!db || !currentUserId) {
+        loadInvoicesFromStorage();
+        return;
+    }
+    
+    try {
+        db.ref(`invoices/${currentUserId}`).on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                state.invoices = snapshot.val();
+                if (!Array.isArray(state.invoices)) {
+                    state.invoices = [];
+                }
+            } else {
+                state.invoices = [];
+                // Cargar desde localStorage si no hay datos en Firebase
+                loadInvoicesFromStorage();
+                return;
+            }
+            state.filteredInvoices = [...state.invoices];
+            updateUI();
+            applyFilters();
+        }, (error) => {
+            console.error('Error cargando de Firebase:', error);
+            loadInvoicesFromStorage();
+        });
+    } catch (e) {
+        console.error('Error al cargar desde Firebase:', e);
+        loadInvoicesFromStorage();
     }
 }
 
@@ -704,7 +791,7 @@ function deleteInvoice(index) {
     // Confirmar eliminación
     if (confirm(`¿Estás seguro de que deseas eliminar la factura ${invoice.id}?`)) {
         state.invoices.splice(index, 1);
-        saveInvoicesToStorage();
+        saveInvoicesToFirebase();
         showMessage(`Factura ${invoice.id} eliminada exitosamente`, 'success');
         updateUI();
         applyFilters();
