@@ -10,6 +10,9 @@
 let db, auth, currentUserId;
 let isFirebaseReady = false;
 
+// ID compartido para sincronización (todos usan el mismo)
+const SHARED_INVOICE_ID = 'shared_invoices';
+
 // Inicializar Firebase cuando esté listo
 function checkFirebaseReady() {
     if (window.db && window.auth) {
@@ -380,13 +383,13 @@ function saveInvoicesToStorage() {
 }
 
 function saveInvoicesToFirebase() {
-    if (!isFirebaseReady || !db || !currentUserId) {
+    if (!isFirebaseReady || !db) {
         saveInvoicesToStorage();
         return;
     }
     
     try {
-        db.ref(`invoices/${currentUserId}`).set(state.invoices).catch((error) => {
+        db.ref(`invoices/${SHARED_INVOICE_ID}`).set(state.invoices).catch((error) => {
             console.error('Error guardando en Firebase:', error);
             saveInvoicesToStorage();
         });
@@ -411,13 +414,13 @@ function loadInvoicesFromStorage() {
 }
 
 function loadInvoicesFromFirebase() {
-    if (!isFirebaseReady || !db || !currentUserId) {
+    if (!isFirebaseReady || !db) {
         loadInvoicesFromStorage();
         return;
     }
     
     try {
-        db.ref(`invoices/${currentUserId}`).on('value', (snapshot) => {
+        db.ref(`invoices/${SHARED_INVOICE_ID}`).on('value', (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 state.invoices = Array.isArray(data) ? data : [];
