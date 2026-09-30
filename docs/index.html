@@ -343,12 +343,12 @@
         </footer>
     </div>
 
-    <!-- Firebase SDK v9 (Modular) -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
-        import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+    <!-- Firebase SDK v8 (Compat - Older API) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
+    <script>
         // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyCW8FaGMLkh07LSLzwNSjec2lbnlrcd-zc",
@@ -360,9 +360,10 @@
             appId: "1:988429203216:web:27015068dd686eac8a1795"
         };
 
-        const app = initializeApp(firebaseConfig);
-        window.db = getDatabase(app);
-        window.auth = getAuth(app);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        window.db = firebase.database();
+        window.auth = firebase.auth();
     </script>
 
     <script src="app.js"></script>

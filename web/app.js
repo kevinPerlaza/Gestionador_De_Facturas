@@ -386,8 +386,7 @@ function saveInvoicesToFirebase() {
     }
     
     try {
-        const dbRef = firebase.database.ref(db, `invoices/${currentUserId}`);
-        firebase.database.set(dbRef, state.invoices).catch((error) => {
+        db.ref(`invoices/${currentUserId}`).set(state.invoices).catch((error) => {
             console.error('Error guardando en Firebase:', error);
             saveInvoicesToStorage();
         });
@@ -418,8 +417,7 @@ function loadInvoicesFromFirebase() {
     }
     
     try {
-        const dbRef = firebase.database.ref(db, `invoices/${currentUserId}`);
-        firebase.database.onValue(dbRef, (snapshot) => {
+        db.ref(`invoices/${currentUserId}`).on('value', (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 state.invoices = Array.isArray(data) ? data : [];
