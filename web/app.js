@@ -307,6 +307,11 @@ function renderResults() {
         // Encontrar el índice real en state.invoices
         const realIndex = state.invoices.findIndex(inv => inv.id === invoice.id);
         
+        // Calcular IVA y total correctamente
+        const monto = invoice.monto;
+        const iva = invoice.impuestos || (monto * 0.19);
+        const total = monto + iva;
+        
         return `
         <div class="invoice-item">
             <div class="invoice-id">${invoice.id}</div>
@@ -324,7 +329,20 @@ function renderResults() {
                     <span class="time-badge time-status-${timeStatusColor}">${timeStatusEmoji} ${daysAgo} días</span>
                 </div>
             </div>
-            <div class="invoice-monto">$${invoice.monto.toFixed(2)}</div>
+            <div class="invoice-amounts">
+                <div class="amount-row">
+                    <span class="amount-label">Monto:</span>
+                    <span class="amount-value">$${monto.toFixed(2)}</span>
+                </div>
+                <div class="amount-row">
+                    <span class="amount-label">IVA (19%):</span>
+                    <span class="amount-value">$${iva.toFixed(2)}</span>
+                </div>
+                <div class="amount-row total-amount">
+                    <span class="amount-label">Total:</span>
+                    <span class="amount-value">$${total.toFixed(2)}</span>
+                </div>
+            </div>
             <button class="btn-delete" onclick="deleteInvoice(${realIndex})" title="Eliminar factura">🗑️</button>
         </div>
     `;

@@ -521,6 +521,39 @@ body {
     transition: var(--transition);
 }
 
+.invoice-amounts {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 120px;
+    text-align: right;
+}
+
+.amount-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.9em;
+}
+
+.amount-row.total-amount {
+    border-top: 2px solid var(--primary-color);
+    padding-top: 5px;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1em;
+}
+
+.amount-label {
+    color: var(--dark-gray);
+    font-weight: 500;
+}
+
+.amount-value {
+    font-weight: 600;
+    color: var(--text-color);
+}
+
 .invoice-item:hover {
     background: var(--light-gray);
 }
@@ -552,13 +585,6 @@ body {
 .invoice-details {
     font-size: 0.9em;
     color: var(--dark-gray);
-}
-
-.invoice-monto {
-    font-size: 1.2em;
-    font-weight: 700;
-    color: var(--success-color);
-    text-align: right;
 }
 
 .btn-delete {
