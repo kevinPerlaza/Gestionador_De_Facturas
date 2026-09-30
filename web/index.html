@@ -21,248 +21,316 @@
                 </div>
             </div>
             <div class="header-info">
-                <span class="badge">v1.3</span>
+                <span class="badge">v1.4</span>
                 <span class="status">Online</span>
             </div>
         </header>
 
+        <!-- Navigation Menu -->
+        <nav class="main-nav">
+            <button class="nav-btn active" data-tab="entrada">
+                <span class="nav-icon">➕</span>
+                Entrada de Datos
+            </button>
+            <button class="nav-btn" data-tab="busqueda">
+                <span class="nav-icon">🔍</span>
+                Búsqueda y Filtros
+            </button>
+        </nav>
+
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Left Panel: Ingresar Factura -->
-            <section class="panel left-panel">
-                <div class="panel-header">
-                    <h2>➕ Ingresar Factura</h2>
-                    <p class="panel-description">Agrega una nueva factura al sistema</p>
-                </div>
+            <!-- Tab: Entrada de Datos -->
+            <section id="entrada-tab" class="tab-content active">
+                <section class="panel full-panel">
+                    <div class="panel-header">
+                        <h2>➕ Ingresar Factura</h2>
+                        <p class="panel-description">Completa los datos de la nueva factura</p>
+                    </div>
 
-                <form id="invoiceForm" class="form">
-                    <!-- Campo ID (Auto) -->
-                    <div class="form-group">
-                        <label for="invoiceId">ID de Factura</label>
-                        <div class="input-with-icon">
-                            <span class="info-icon">🔐</span>
-                            <input type="text" id="invoiceId" placeholder="Se genera automáticamente" readonly>
+                    <form id="invoiceForm" class="form-modern">
+                        <!-- Primera fila: ID y Fecha -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceCustomId">ID Personalizado (Opcional)</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">🔐</span>
+                                    <input type="text" id="invoiceCustomId" placeholder="Ej: FAC-2026-001">
+                                </div>
+                                <small>Déjalo en blanco para auto-generar</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="invoiceDate">Fecha (DD/MM/YYYY) *</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">📅</span>
+                                    <input type="date" id="invoiceDate" required>
+                                </div>
+                            </div>
                         </div>
-                        <small>Se genera automáticamente al agregar la factura</small>
-                    </div>
 
-                    <!-- Campo Fecha con Validación -->
-                    <div class="form-group">
-                        <label for="invoiceDate">Fecha (DD/MM/YYYY) *</label>
-                        <input type="date" id="invoiceDate" required>
-                        <small>Se requiere una fecha válida en formato DD/MM/YYYY</small>
-                    </div>
+                        <!-- Segunda fila: Cliente e información -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceClient">Cliente *</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">🏢</span>
+                                    <input type="text" id="invoiceClient" placeholder="Nombre de la empresa" required>
+                                </div>
+                            </div>
 
-                    <!-- Campo Cliente -->
-                    <div class="form-group">
-                        <label for="invoiceClient">Cliente *</label>
-                        <input type="text" id="invoiceClient" placeholder="Nombre de la empresa" required>
-                    </div>
+                            <div class="form-group">
+                                <label for="invoiceClientRUT">RUT (Opcional)</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">📋</span>
+                                    <input type="text" id="invoiceClientRUT" placeholder="Ej: 12.345.678-9">
+                                </div>
+                            </div>
+                        </div>
 
-                    <!-- Datos Adicionales del Cliente (Opcionales) -->
-                    <div class="form-group">
-                        <label for="invoiceClientPhone">Teléfono (Opcional)</label>
-                        <div class="input-with-icon">
-                            <span class="info-icon">📞</span>
-                            <input type="text" id="invoiceClientPhone" placeholder="Ej: +1 234-567-8900">
+                        <!-- Tercera fila: Email y Teléfono -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceClientEmail">Correo (Opcional)</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">✉️</span>
+                                    <input type="email" id="invoiceClientEmail" placeholder="correo@empresa.com">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="invoiceClientPhone">Teléfono (Opcional)</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">📞</span>
+                                    <input type="text" id="invoiceClientPhone" placeholder="Ej: +56 9 1234-5678">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cuarta fila: Dirección -->
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="invoiceClientAddress">Dirección (Opcional)</label>
+                                <div class="input-with-icon">
+                                    <span class="info-icon">📍</span>
+                                    <input type="text" id="invoiceClientAddress" placeholder="Ej: Calle Principal 123, Apt 4B">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quinta fila: Monto y Aseo -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceMonto">Monto *</label>
+                                <div class="input-with-icon">
+                                    <span class="currency-icon">$</span>
+                                    <input type="number" id="invoiceMonto" placeholder="1500.00" step="0.01" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="invoiceProject">Tipo de Servicio *</label>
+                                <div class="select-with-add">
+                                    <select id="invoiceProject" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option value="Barrido">Barrido</option>
+                                        <option value="Trapeo">Trapeo</option>
+                                        <option value="Desinfección">Desinfección</option>
+                                        <option value="Limpieza de Ventanas">Limpieza de Ventanas</option>
+                                        <option value="Limpieza de Alfombras">Limpieza de Alfombras</option>
+                                        <option value="Limpieza de Baños">Limpieza de Baños</option>
+                                        <option value="Otro">Otro (especificar)</option>
+                                    </select>
+                                    <input type="text" id="invoiceProjectOther" placeholder="Especifica otro tipo de servicio" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sexta fila: Impuestos y Estado -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceTaxes">Impuestos (19%)</label>
+                                <div class="input-with-icon">
+                                    <span class="currency-icon">$</span>
+                                    <input type="number" id="invoiceTaxes" placeholder="0.00" step="0.01" readonly>
+                                </div>
+                                <small>Se calcula automáticamente</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="invoiceTotal">Total</label>
+                                <div class="input-with-icon total-display">
+                                    <span class="currency-icon">$</span>
+                                    <input type="number" id="invoiceTotal" placeholder="0.00" step="0.01" readonly>
+                                </div>
+                                <small>Monto + Impuestos</small>
+                            </div>
+                        </div>
+
+                        <!-- Séptima fila: Estado -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="invoiceStatus">Estado de Pago</label>
+                                <select id="invoiceStatus">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="pagada">Pagada</option>
+                                    <option value="pendiente">Pendiente</option>
+                                    <option value="vencida">Vencida</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group"></div>
+                        </div>
+
+                        <!-- Botones de Acción -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary btn-large">
+                                <span>➕</span> Agregar Factura
+                            </button>
+                            <button type="reset" class="btn btn-secondary btn-large">
+                                <span>🔄</span> Limpiar Formulario
+                            </button>
+                        </div>
+
+                        <!-- Mensaje de Estado -->
+                        <div id="formMessage" class="form-message"></div>
+                    </form>
+
+                    <!-- Resumen Rápido -->
+                    <div class="summary-card">
+                        <h3>📈 Resumen Rápido</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Total Facturas:</span>
+                                <span class="value" id="totalInvoices">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Monto Total:</span>
+                                <span class="value" id="totalAmount">$0.00</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Impuestos Total:</span>
+                                <span class="value" id="totalTaxes">$0.00</span>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="invoiceClientAddress">Dirección (Opcional)</label>
-                        <div class="input-with-icon">
-                            <span class="info-icon">📍</span>
-                            <input type="text" id="invoiceClientAddress" placeholder="Ej: Calle Principal 123, Apt 4B">
-                        </div>
-                    </div>
-
-                    <!-- Campo Monto -->
-                    <div class="form-group">
-                        <label for="invoiceMonto">Monto *</label>
-                        <div class="input-with-icon">
-                            <span class="currency-icon">$</span>
-                            <input type="number" id="invoiceMonto" placeholder="1500.00" step="0.01" required>
-                        </div>
-                    </div>
-
-                    <!-- Aseo (Dropdown con opción de agregar otro) -->
-                    <div class="form-group">
-                        <label for="invoiceProject">Aseo *</label>
-                        <div class="select-with-add">
-                            <select id="invoiceProject" required>
-                                <option value="">Seleccionar aseo...</option>
-                                <option value="Barrido">Barrido</option>
-                                <option value="Trapeo">Trapeo</option>
-                                <option value="Desinfección">Desinfección</option>
-                                <option value="Limpieza de Ventanas">Limpieza de Ventanas</option>
-                                <option value="Limpieza de Alfombras">Limpieza de Alfombras</option>
-                                <option value="Limpieza de Baños">Limpieza de Baños</option>
-                                <option value="Otro">Otro (especificar)</option>
-                            </select>
-                            <input type="text" id="invoiceProjectOther" placeholder="Especifica otro tipo de aseo" style="display: none;">
-                        </div>
-                    </div>
-
-                    <!-- Impuestos (Auto 19%) -->
-                    <div class="form-group">
-                        <label for="invoiceTaxes">Impuestos (19%)</label>
-                        <div class="input-with-icon">
-                            <span class="currency-icon">$</span>
-                            <input type="number" id="invoiceTaxes" placeholder="0.00" step="0.01" readonly>
-                        </div>
-                        <small>Se calcula automáticamente al 19% del monto</small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="invoiceStatus">Estado</label>
-                        <select id="invoiceStatus">
-                            <option value="">Seleccionar...</option>
-                            <option value="pagada">Pagada</option>
-                            <option value="pendiente">Pendiente</option>
-                            <option value="vencida">Vencida</option>
-                        </select>
-                    </div>
-
-                    <!-- Botones de Acción -->
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <span>➕</span> Agregar Factura
-                        </button>
-                        <button type="reset" class="btn btn-secondary">
-                            <span>🔄</span> Limpiar
-                        </button>
-                    </div>
-
-                    <!-- Mensaje de Estado -->
-                    <div id="formMessage" class="form-message"></div>
-                </form>
-
-                <!-- Resumen Rápido -->
-                <div class="summary-card">
-                    <h3>📈 Resumen Rápido</h3>
-                    <div class="summary-grid">
-                        <div class="summary-item">
-                            <span class="label">Total Facturas:</span>
-                            <span class="value" id="totalInvoices">0</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">Monto Total:</span>
-                            <span class="value" id="totalAmount">$0.00</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="label">Filtros Activos:</span>
-                            <span class="value" id="activeFilters">0</span>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </section>
 
             <!-- Right Panel: Filtrado y Búsqueda -->
-            <section class="panel right-panel">
-                <div class="panel-header">
-                    <h2>🔍 Filtrar y Buscar</h2>
-                    <p class="panel-description">Encuentra tus facturas fácilmente</p>
-                </div>
-
-                <!-- Filtros -->
-                <div class="filters-section">
-                    <div class="filter-group">
-                        <h4>Por Cliente</h4>
-                        <input type="text" id="filterClient" placeholder="Buscar cliente...">
+            <section id="busqueda-tab" class="tab-content">
+                <section class="panel full-panel">
+                    <div class="panel-header">
+                        <h2>🔍 Filtrar y Buscar</h2>
+                        <p class="panel-description">Encuentra y gestiona tus facturas</p>
                     </div>
 
-                    <div class="filter-group">
-                        <h4>Por Rango de Monto</h4>
-                        <div class="filter-range">
-                            <input type="number" id="filterMontoMin" placeholder="Mínimo" step="0.01">
-                            <span class="range-separator">a</span>
-                            <input type="number" id="filterMontoMax" placeholder="Máximo" step="0.01">
+                    <!-- Filtros -->
+                    <div class="filters-section">
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <h4>Por Cliente</h4>
+                                <input type="text" id="filterClient" placeholder="Buscar cliente...">
+                            </div>
+
+                            <div class="filter-group">
+                                <h4>Por Rango de Monto</h4>
+                                <div class="filter-range">
+                                    <input type="number" id="filterMontoMin" placeholder="Mínimo" step="0.01">
+                                    <span class="range-separator">a</span>
+                                    <input type="number" id="filterMontoMax" placeholder="Máximo" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <h4>Por Fecha</h4>
+                                <div class="filter-date">
+                                    <input type="text" id="filterDateFrom" placeholder="Desde (DD/MM/YYYY)">
+                                    <span class="range-separator">a</span>
+                                    <input type="text" id="filterDateTo" placeholder="Hasta (DD/MM/YYYY)">
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <h4>Por Proyecto</h4>
+                                <input type="text" id="filterProject" placeholder="Buscar proyecto...">
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <div class="filter-group">
+                                <h4>Por Estado</h4>
+                                <div class="filter-checkboxes">
+                                    <label>
+                                        <input type="checkbox" value="pagada" class="statusFilter"> Pagada
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="pendiente" class="statusFilter"> Pendiente
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="vencida" class="statusFilter"> Vencida
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="filter-group">
+                                <h4>Tiempo desde el Servicio</h4>
+                                <div class="filter-time-status">
+                                    <label>
+                                        <input type="checkbox" value="green" class="timeStatusFilter"> 
+                                        🟢 0-14 días
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="orange" class="timeStatusFilter"> 
+                                        🟠 15-29 días
+                                    </label>
+                                    <label>
+                                        <input type="checkbox" value="red" class="timeStatusFilter"> 
+                                        🔴 30+ días
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de Filtro -->
+                        <div class="filter-actions">
+                            <button id="applyFilters" class="btn btn-primary">
+                                <span>🔍</span> Aplicar Filtros
+                            </button>
+                            <button id="clearFilters" class="btn btn-secondary">
+                                <span>✨</span> Limpiar Filtros
+                            </button>
                         </div>
                     </div>
 
-                    <div class="filter-group">
-                        <h4>Por Fecha</h4>
-                        <div class="filter-date">
-                            <input type="text" id="filterDateFrom" placeholder="Desde (DD/MM/YYYY)">
-                            <span class="range-separator">a</span>
-                            <input type="text" id="filterDateTo" placeholder="Hasta (DD/MM/YYYY)">
+                    <!-- Resultados -->
+                    <div class="results-section">
+                        <h3>📋 Resultados</h3>
+                        <div id="resultsContainer" class="results-container">
+                            <div class="empty-state">
+                                <p>Sin facturas aún. Agrega una para comenzar!</p>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="filter-group">
-                        <h4>Por Estado</h4>
-                        <div class="filter-checkboxes">
-                            <label>
-                                <input type="checkbox" value="pagada" class="statusFilter"> Pagada
-                            </label>
-                            <label>
-                                <input type="checkbox" value="pendiente" class="statusFilter"> Pendiente
-                            </label>
-                            <label>
-                                <input type="checkbox" value="vencida" class="statusFilter"> Vencida
-                            </label>
+                    <!-- Acciones de Exportación -->
+                    <div class="export-section">
+                        <h4>💾 Exportar Datos</h4>
+                        <div class="export-buttons">
+                            <button id="exportJSON" class="btn btn-small">
+                                <span>📄</span> JSON
+                            </button>
+                            <button id="exportExcel" class="btn btn-small">
+                                <span>📊</span> Excel
+                            </button>
+                            <button id="exportPDF" class="btn btn-small">
+                                <span>📑</span> PDF
+                            </button>
                         </div>
                     </div>
-
-                    <div class="filter-group">
-                        <h4>Por Proyecto</h4>
-                        <input type="text" id="filterProject" placeholder="Buscar proyecto...">
-                    </div>
-
-                    <div class="filter-group">
-                        <h4>Tiempo desde el Aseo</h4>
-                        <div class="filter-time-status">
-                            <label>
-                                <input type="checkbox" value="green" class="timeStatusFilter"> 
-                                🟢 0-14 días
-                            </label>
-                            <label>
-                                <input type="checkbox" value="orange" class="timeStatusFilter"> 
-                                🟠 15-29 días
-                            </label>
-                            <label>
-                                <input type="checkbox" value="red" class="timeStatusFilter"> 
-                                🔴 30+ días
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Botones de Filtro -->
-                    <div class="filter-actions">
-                        <button id="applyFilters" class="btn btn-primary">
-                            <span>🔍</span> Aplicar Filtros
-                        </button>
-                        <button id="clearFilters" class="btn btn-secondary">
-                            <span>✨</span> Limpiar Filtros
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Resultados -->
-                <div class="results-section">
-                    <h3>📋 Resultados</h3>
-                    <div id="resultsContainer" class="results-container">
-                        <div class="empty-state">
-                            <p>Sin facturas aún. Agrega una para comenzar!</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Acciones de Exportación -->
-                <div class="export-section">
-                    <h4>💾 Exportar</h4>
-                    <div class="export-buttons">
-                        <button id="exportJSON" class="btn btn-small">
-                            <span>📄</span> JSON
-                        </button>
-                        <button id="exportExcel" class="btn btn-small">
-                            <span>📊</span> Excel
-                        </button>
-                        <button id="exportPDF" class="btn btn-small">
-                            <span>📑</span> PDF
-                        </button>
-                    </div>
-                </div>
+                </section>
             </section>
         </main>
 

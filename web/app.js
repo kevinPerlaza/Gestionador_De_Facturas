@@ -1,16 +1,20 @@
 // ============================================================================
-// SISTEMA DE FACTURAS - APLICACION WEB v1.3
+// SISTEMA DE FACTURAS - APLICACION WEB v1.4
 // ============================================================================
-// Cambios v1.3:
-// - Campos opcionales: Teléfono y Dirección del cliente
-// - Filtro de tiempo transcurrido desde el aseo (verde/naranja/rojo)
+// Cambios v1.4:
+// - Menú de navegación entre Entrada y Búsqueda
+// - ID personalizado opcional
+// - Campos de RUT y Correo del cliente
+// - Corrección en cálculo de impuestos y total
+// - Mejora de diseño y UX
 // ============================================================================
 
 // Estado Global
 const state = {
     invoices: [],
     filters: {},
-    filteredInvoices: []
+    filteredInvoices: [],
+    currentTab: 'entrada'
 };
 
 // ============================================================================
@@ -19,9 +23,9 @@ const state = {
 
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
+    setupTabNavigation();
     loadInvoicesFromStorage();
     updateUI();
-    updateNextInvoiceIdDisplay();
     setupProjectDropdown();
 });
 
@@ -47,6 +51,46 @@ function initializeEventListeners() {
     document.getElementById('exportJSON').addEventListener('click', () => exportData('json'));
     document.getElementById('exportExcel').addEventListener('click', () => exportData('excel'));
     document.getElementById('exportPDF').addEventListener('click', () => exportData('pdf'));
+}
+
+// ============================================================================
+// NAVEGACION DE PESTAÑAS
+// ============================================================================
+
+function setupTabNavigation() {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const tabName = e.currentTarget.getAttribute('data-tab');
+            switchTab(tabName);
+        });
+    });
+}
+
+function switchTab(tabName) {
+    // Ocultar todas las pestañas
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(tab => tab.classList.remove('active'));
+    
+    // Mostrar pestaña seleccionada
+    const selectedTab = document.getElementById(tabName + '-tab');
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+    
+    // Actualizar botones nav
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+    
+    // Guardar tab actual
+    state.currentTab = tabName;
+    
+    // Si es búsqueda, aplicar filtros
+    if (tabName === 'busqueda') {
+        applyFilters();
+    }
 }
 
 // ============================================================================
@@ -76,7 +120,7 @@ function handleAddInvoice(e) {
     if (proyecto === 'Otro') {
         proyecto = document.getElementById('invoiceProjectOther').value;
         if (!proyecto) {
-            showMessage('Por favor especifica el tipo de aseo', 'error');
+            showMessage('Por favor especifica el tipo de servicio', 'error');
             return;
         }
     }
@@ -96,19 +140,25 @@ function handleAddInvoice(e) {
         return;
     }
 
-    // Generar ID automático
-    const id = generateNextInvoiceId();
+    // Generar o usar ID personalizado
+    let id = document.getElementById('invoiceCustomId').value.trim();
+    if (!id) {
+        id = generateNextInvoiceId();
+    }
 
     // Crear datos de la factura
     const invoiceData = {
         id: id,
         fecha: fecha,
         cliente: cliente,
+        rut: document.getElementById('invoiceClientRUT').value || '',
+        email: document.getElementById('invoiceClientEmail').value || '',
         telefono: document.getElementById('invoiceClientPhone').value || '',
         direccion: document.getElementById('invoiceClientAddress').value || '',
         monto: monto,
         proyecto: proyecto,
         impuestos: impuestos,
+        total: monto + impuestos,
         estado: document.getElementById('invoiceStatus').value || 'pendiente'
     };
 
@@ -122,9 +172,6 @@ function handleAddInvoice(e) {
     // Limpiar formulario
     document.getElementById('invoiceForm').reset();
     document.getElementById('invoiceProjectOther').style.display = 'none';
-    
-    // Generar próximo ID
-    generateNextInvoiceId();
     
     // Actualizar UI
     updateUI();
@@ -287,11 +334,9 @@ function updateUI() {
     const totalAmount = state.invoices.reduce((sum, inv) => sum + inv.monto, 0);
     document.getElementById('totalAmount').textContent = `$${totalAmount.toFixed(2)}`;
     
-    // Filtros activos
-    document.getElementById('activeFilters').textContent = Object.keys(state.filters).length;
-    
-    // Actualizar próximo ID disponible
-    updateNextInvoiceIdDisplay();
+    // Impuestos totales
+    const totalTaxes = state.invoices.reduce((sum, inv) => sum + inv.impuestos, 0);
+    document.getElementById('totalTaxes').textContent = `$${totalTaxes.toFixed(2)}`;
     
     // Renderizar resultados
     if (state.filteredInvoices.length === 0 && state.invoices.length > 0) {
@@ -371,14 +416,18 @@ function exportJSON(data) {
 
 function exportExcel(data) {
     // Crear CSV que Excel puede abrir
-    let csv = 'ID,Fecha,Cliente,Monto,Impuestos (19%),Total,Aseo,Estado\n';
+    let csv = 'ID,Fecha,Cliente,RUT,Email,Teléfono,Dirección,Monto,Impuestos (19%),Total,Tipo de Servicio,Estado\n';
     
     data.forEach(invoice => {
-        const total = invoice.monto + invoice.impuestos;
+        const total = invoice.total || (invoice.monto + invoice.impuestos);
         const row = [
             `"${invoice.id}"`,
             `"${invoice.fecha}"`,
             `"${invoice.cliente}"`,
+            `"${invoice.rut || ''}"`,
+            `"${invoice.email || ''}"`,
+            `"${invoice.telefono || ''}"`,
+            `"${invoice.direccion || ''}"`,
             `"${invoice.monto.toFixed(2)}"`,
             `"${invoice.impuestos.toFixed(2)}"`,
             `"${total.toFixed(2)}"`,
@@ -393,9 +442,11 @@ function exportExcel(data) {
     const totalImpuestos = data.reduce((sum, inv) => sum + inv.impuestos, 0);
     const totalGeneral = totalMonto + totalImpuestos;
     
-    csv += '\n"TOTAL","","","' + totalMonto.toFixed(2) + '","' + totalImpuestos.toFixed(2) + '","' + totalGeneral.toFixed(2) + '","",""\n';
+    csv += '\n"TOTAL","","","","","","","' + totalMonto.toFixed(2) + '","' + totalImpuestos.toFixed(2) + '","' + totalGeneral.toFixed(2) + '","",""\n';
     
-    const dataBlob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    // Convertir BOM para UTF-8 en Excel
+    const BOM = '\uFEFF';
+    const dataBlob = new Blob([BOM + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(dataBlob);
     
     const link = document.createElement('a');
@@ -435,6 +486,7 @@ function exportPDF(data) {
             <div class="summary-item"><strong>Fecha de Generación:</strong> ${new Date().toLocaleString('es-ES')}</div>
             <div class="summary-item"><strong>Monto Total:</strong> $${data.reduce((sum, inv) => sum + inv.monto, 0).toFixed(2)}</div>
             <div class="summary-item"><strong>Impuestos Totales (19%):</strong> $${data.reduce((sum, inv) => sum + inv.impuestos, 0).toFixed(2)}</div>
+            <div class="summary-item"><strong>Total General:</strong> $${data.reduce((sum, inv) => sum + (inv.total || (inv.monto + inv.impuestos)), 0).toFixed(2)}</div>
         </div>
         <table>
             <thead>
@@ -442,10 +494,12 @@ function exportPDF(data) {
                     <th>ID</th>
                     <th>Fecha</th>
                     <th>Cliente</th>
+                    <th>RUT</th>
+                    <th>Email</th>
                     <th>Monto</th>
                     <th>Impuestos (19%)</th>
                     <th>Total</th>
-                    <th>Aseo</th>
+                    <th>Tipo de Servicio</th>
                     <th>Estado</th>
                 </tr>
             </thead>
@@ -456,7 +510,7 @@ function exportPDF(data) {
     let totalImpuestos = 0;
     
     data.forEach(invoice => {
-        const total = invoice.monto + invoice.impuestos;
+        const total = invoice.total || (invoice.monto + invoice.impuestos);
         totalMonto += invoice.monto;
         totalImpuestos += invoice.impuestos;
         
@@ -465,6 +519,8 @@ function exportPDF(data) {
                 <td>${invoice.id}</td>
                 <td>${invoice.fecha}</td>
                 <td>${invoice.cliente}</td>
+                <td>${invoice.rut || '-'}</td>
+                <td>${invoice.email || '-'}</td>
                 <td>$${invoice.monto.toFixed(2)}</td>
                 <td>$${invoice.impuestos.toFixed(2)}</td>
                 <td>$${total.toFixed(2)}</td>
@@ -479,12 +535,12 @@ function exportPDF(data) {
     html += `
             </tbody>
         </table>
-        <table style="margin-top: 20px; width: 50%;">
+        <table style="margin-top: 20px; width: 100%;">
             <tr class="total-row">
-                <td>TOTAL FACTURAS</td>
+                <td colspan="5">TOTAL</td>
                 <td>$${totalMonto.toFixed(2)}</td>
                 <td>$${totalImpuestos.toFixed(2)}</td>
-                <td>$${totalGeneral.toFixed(2)}</td>
+                <td colspan="3">$${totalGeneral.toFixed(2)}</td>
             </tr>
         </table>
     </body>
@@ -571,11 +627,14 @@ function generateNextInvoiceId() {
 function calculateTaxes() {
     const montoInput = document.getElementById('invoiceMonto');
     const taxesInput = document.getElementById('invoiceTaxes');
+    const totalInput = document.getElementById('invoiceTotal');
     
     const monto = parseFloat(montoInput.value) || 0;
     const impuestos = monto * 0.19; // 19% de impuestos
+    const total = monto + impuestos;
     
     taxesInput.value = impuestos.toFixed(2);
+    totalInput.value = total.toFixed(2);
 }
 
 function handleProjectChange() {
@@ -594,21 +653,6 @@ function handleProjectChange() {
 function setupProjectDropdown() {
     // Verificar si hay valores guardados en localStorage y recuperarlos si es necesario
     // Por ahora, la lista está hardcodeada en el HTML
-}
-
-function updateNextInvoiceIdDisplay() {
-    // Buscar el ID más alto existente
-    let maxNumber = 0;
-    state.invoices.forEach(inv => {
-        const match = inv.id.match(/FAC-(\d+)/);
-        if (match) {
-            const num = parseInt(match[1], 10);
-            if (num > maxNumber) maxNumber = num;
-        }
-    });
-    
-    const nextId = `FAC-${String(maxNumber + 1).padStart(3, '0')}`;
-    document.getElementById('invoiceId').value = nextId;
 }
 
 function formatDateFromInput(dateString) {
