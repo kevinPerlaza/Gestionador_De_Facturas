@@ -239,6 +239,10 @@ function handleClearFilters() {
         checkbox.checked = false;
     });
 
+    document.querySelectorAll('.timeStatusFilter').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+
     state.filters = {};
     applyFilters();
     updateUI();
@@ -349,16 +353,16 @@ function renderResults() {
         
         return `
         <div class="invoice-item">
-            <div class="invoice-id">${invoice.id}</div>
+            <div class="invoice-id">${escapeHtml(invoice.id)}</div>
             <div class="invoice-info">
-                <div class="invoice-client">${invoice.cliente}</div>
+                <div class="invoice-client">${escapeHtml(invoice.cliente)}</div>
                 <div class="invoice-client-details">
-                    ${invoice.telefono ? `📞 ${invoice.telefono}` : ''}
-                    ${invoice.direccion ? `📍 ${invoice.direccion}` : ''}
+                    ${invoice.telefono ? `📞 ${escapeHtml(invoice.telefono)}` : ''}
+                    ${invoice.direccion ? `📍 ${escapeHtml(invoice.direccion)}` : ''}
                 </div>
                 <div class="invoice-details">
-                    ${invoice.fecha} • ${invoice.proyecto || 'Sin proyecto'}
-                    ${invoice.estado ? `<span class="status-badge status-${invoice.estado}"> ${invoice.estado}</span>` : ''}
+                    ${invoice.fecha} • ${escapeHtml(invoice.proyecto || 'Sin proyecto')}
+                    ${invoice.estado ? `<span class="status-badge status-${escapeHtml(invoice.estado)}"> ${escapeHtml(invoice.estado)}</span>` : ''}
                 </div>
                 <div class="invoice-time-status">
                     <span class="time-badge time-status-${timeStatusColor}">${timeStatusEmoji} ${daysAgo} días</span>
@@ -461,10 +465,8 @@ function loadInvoicesFromFirebase() {
     try {
         db.ref(`invoices/${currentUserId}`).on('value', (snapshot) => {
             if (snapshot.exists()) {
-                state.invoices = snapshot.val();
-                if (!Array.isArray(state.invoices)) {
-                    state.invoices = [];
-                }
+                const data = snapshot.val();
+                state.invoices = Array.isArray(data) ? data : [];
             } else {
                 state.invoices = [];
                 // Cargar desde localStorage si no hay datos en Firebase
@@ -533,27 +535,29 @@ function exportExcel(data) {
     let csv = 'ID,Fecha,Cliente,RUT,Email,Teléfono,Dirección,Monto,Impuestos (19%),Total,Tipo de Servicio,Estado\n';
     
     data.forEach(invoice => {
-        const total = invoice.total || (invoice.monto + invoice.impuestos);
+        const monto = invoice.monto || 0;
+        const impuestos = invoice.impuestos || 0;
+        const total = invoice.total || (monto + impuestos);
         const row = [
-            `"${invoice.id}"`,
-            `"${invoice.fecha}"`,
-            `"${invoice.cliente}"`,
-            `"${invoice.rut || ''}"`,
-            `"${invoice.email || ''}"`,
-            `"${invoice.telefono || ''}"`,
-            `"${invoice.direccion || ''}"`,
-            `"${invoice.monto.toFixed(2)}"`,
-            `"${invoice.impuestos.toFixed(2)}"`,
+            `"${(invoice.id || '').replace(/"/g, '""')}"`,
+            `"${invoice.fecha || ''}"`,
+            `"${(invoice.cliente || '').replace(/"/g, '""')}"`,
+            `"${(invoice.rut || '').replace(/"/g, '""')}"`,
+            `"${(invoice.email || '').replace(/"/g, '""')}"`,
+            `"${(invoice.telefono || '').replace(/"/g, '""')}"`,
+            `"${(invoice.direccion || '').replace(/"/g, '""')}"`,
+            `"${monto.toFixed(2)}"`,
+            `"${impuestos.toFixed(2)}"`,
             `"${total.toFixed(2)}"`,
-            `"${invoice.proyecto}"`,
-            `"${invoice.estado || 'pendiente'}"`
+            `"${(invoice.proyecto || '').replace(/"/g, '""')}"`,
+            `"${(invoice.estado || 'pendiente').replace(/"/g, '""')}"`
         ].join(',');
         csv += row + '\n';
     });
     
     // Agregar totales
-    const totalMonto = data.reduce((sum, inv) => sum + inv.monto, 0);
-    const totalImpuestos = data.reduce((sum, inv) => sum + inv.impuestos, 0);
+    const totalMonto = data.reduce((sum, inv) => sum + (inv.monto || 0), 0);
+    const totalImpuestos = data.reduce((sum, inv) => sum + (inv.impuestos || 0), 0);
     const totalGeneral = totalMonto + totalImpuestos;
     
     csv += '\n"TOTAL","","","","","","","' + totalMonto.toFixed(2) + '","' + totalImpuestos.toFixed(2) + '","' + totalGeneral.toFixed(2) + '","",""\n';
@@ -674,11 +678,13 @@ function exportPDF(data) {
     showMessage('Abriendo vista previa para PDF. Usa Imprimir para guardar como PDF', 'success');
 }
 
-// ============================================================================
-// UTILIDADES
-// ============================================================================
-
-function showMessage(message, type) {
+// Función para escapar HTML y prevenir XSS
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
     const messageEl = document.getElementById('formMessage');
     messageEl.textContent = message;
     messageEl.className = `form-message ${type}`;
@@ -706,7 +712,10 @@ function isValidDate(dateString) {
 }
 
 function dateToComparable(dateString) {
-    const [day, month, year] = dateString.split('/');
+    if (!dateString || typeof dateString !== 'string') return '00000000';
+    const parts = dateString.split('/');
+    if (parts.length !== 3) return '00000000';
+    const [day, month, year] = parts;
     return `${year}${month}${day}`;
 }
 
@@ -801,8 +810,10 @@ function deleteInvoice(index) {
 function calculateDaysSinceService(dateString) {
     // Convertir fecha DD/MM/YYYY a Date
     const [day, month, year] = dateString.split('/');
-    const invoiceDate = new Date(year, month - 1, day);
+    // Usar mediodía para evitar problemas de timezone
+    const invoiceDate = new Date(year, month - 1, day, 12, 0, 0);
     const today = new Date();
+    today.setHours(12, 0, 0, 0); // Normalizar también today
     
     // Calcular diferencia en días
     const diffTime = today - invoiceDate;
