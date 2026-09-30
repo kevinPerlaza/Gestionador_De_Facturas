@@ -7,41 +7,38 @@
 // - Datos sincronizados en tiempo real
 // ============================================================================
 
-// Firebase Configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyCW8FaGMLkh07LSLzwNSjec2lbnlrcd-zc",
-    authDomain: "gestionador-facturas.firebaseapp.com",
-    databaseURL: "https://gestionador-facturas-default-rtdb.firebaseio.com",
-    projectId: "gestionador-facturas",
-    storageBucket: "gestionador-facturas.firebasestorage.app",
-    messagingSenderId: "988429203216",
-    appId: "1:988429203216:web:27015068dd686eac8a1795"
-};
-
-// Initialize Firebase
 let db, auth, currentUserId;
+let isFirebaseReady = false;
 
-try {
-    const app = firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    auth = firebase.auth();
-    
-    // Autenticación anónima
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            currentUserId = user.uid;
-            loadInvoicesFromFirebase();
-        } else {
-            auth.signInAnonymously().catch((error) => {
-                console.error('Error de autenticación:', error);
-                // Fallback a localStorage si Firebase falla
-                loadInvoicesFromStorage();
-            });
-        }
-    });
-} catch (error) {
-    console.error('Error inicializando Firebase:', error);
-    // Fallback a localStorage
+// Inicializar Firebase cuando esté listo
+function checkFirebaseReady() {
+    if (window.db && window.auth) {
+        isFirebaseReady = true;
+        db = window.db;
+        auth = window.auth;
+        initializeAuth();
+    } else {
+        setTimeout(checkFirebaseReady, 100);
+    }
+}
+
+function initializeAuth() {
+    try {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                currentUserId = user.uid;
+                loadInvoicesFromFirebase();
+            } else {
+                auth.signInAnonymously().catch((error) => {
+                    console.error('Error de autenticación:', error);
+                    loadInvoicesFromStorage();
+                });
+            }
+        });
+    } catch (error) {
+        console.error('Error inicializando autenticación:', error);
+        loadInvoicesFromStorage();
+    }
 }
 
 // Estado Global
@@ -59,8 +56,7 @@ const state = {
 document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     setupTabNavigation();
-    // No cargar inmediatamente - esperar a que Firebase se autentique
-    // La carga ocurrirá en auth.onAuthStateChanged
+    checkFirebaseReady();
     setupProjectDropdown();
 });
 
@@ -425,15 +421,16 @@ function saveInvoicesToStorage() {
 }
 
 function saveInvoicesToFirebase() {
-    if (!db || !currentUserId) {
+    if (!isFirebaseReady || !db || !currentUserId) {
         saveInvoicesToStorage();
         return;
     }
     
     try {
-        db.ref(`invoices/${currentUserId}`).set(state.invoices).catch((error) => {
+        // Usar la API correcta de Firebase 9 modular
+        const dbRef = firebase.database.ref(db, `invoices/${currentUserId}`);
+        firebase.database.set(dbRef, state.invoices).catch((error) => {
             console.error('Error guardando en Firebase:', error);
-            // Fallback a localStorage
             saveInvoicesToStorage();
         });
     } catch (e) {
@@ -457,19 +454,19 @@ function loadInvoicesFromStorage() {
 }
 
 function loadInvoicesFromFirebase() {
-    if (!db || !currentUserId) {
+    if (!isFirebaseReady || !db || !currentUserId) {
         loadInvoicesFromStorage();
         return;
     }
     
     try {
-        db.ref(`invoices/${currentUserId}`).on('value', (snapshot) => {
+        const dbRef = firebase.database.ref(db, `invoices/${currentUserId}`);
+        firebase.database.onValue(dbRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 state.invoices = Array.isArray(data) ? data : [];
             } else {
                 state.invoices = [];
-                // Cargar desde localStorage si no hay datos en Firebase
                 loadInvoicesFromStorage();
                 return;
             }

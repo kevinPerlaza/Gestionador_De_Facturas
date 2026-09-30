@@ -337,16 +337,33 @@
         <!-- Footer -->
         <footer class="footer">
             <div class="footer-content">
-                <p>&copy; 2026 Sistema de Gestión de Facturas v1.3</p>
+                <p>&copy; 2026 Sistema de Gestión de Facturas v1.4</p>
                 <p>Desarrollado con ❤️ | <a href="https://github.com" target="_blank">GitHub</a></p>
             </div>
         </footer>
     </div>
 
-    <!-- Firebase (Compat version for older syntax) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <!-- Firebase SDK v9 (Modular) -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js';
+        import { getDatabase } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js';
+        import { getAuth } from 'https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js';
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCW8FaGMLkh07LSLzwNSjec2lbnlrcd-zc",
+            authDomain: "gestionador-facturas.firebaseapp.com",
+            databaseURL: "https://gestionador-facturas-default-rtdb.firebaseio.com",
+            projectId: "gestionador-facturas",
+            storageBucket: "gestionador-facturas.firebasestorage.app",
+            messagingSenderId: "988429203216",
+            appId: "1:988429203216:web:27015068dd686eac8a1795"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        window.db = getDatabase(app);
+        window.auth = getAuth(app);
+    </script>
 
     <script src="app.js"></script>
 </body>
